@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="1929년 광주 학생들에게 2026년 후배가 보내는 답장 (가상 대화)">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html{height:100%;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;font-size:14px}
+[hidden]{display:none!important}
+</style>
+<title>1929 선배님들께</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700;800&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<style>
+/* Layout: 메신저 한 화면. 1929년 학생들이 보낸 메시지가 97년 동안 안 읽힌 채로 있다가, 2026년에 읽히고 답장이 옴 */
+:root {
+  color-scheme: light;
+  --bg: #e9e6df;
+  --bg-chat: #f3f1ec;
+  --bar: #faf9f6;
+  --line: #d9d4c9;
+  --text: #1d2130;
+  --muted: #7b7a74;
+  --old-bubble: #e6d6b2;
+  --old-ink: #3e2b1b;
+  --old-avatar: #5a3d26;
+  --new-bubble: #2346c9;
+  --new-ink: #ffffff;
+  --unread: #d4462e;
+  --chip: rgba(29,33,48,.08);
+  --font-old: "Nanum Myeongjo", "AppleMyungjo", "Batang", serif;
+  --font-ui: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+}
+html, body { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+}
+.phone {
+  height: 100%;
+  max-width: 460px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-chat);
+  box-shadow: 0 0 0 1px var(--line);
+}
+.top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-block: 12px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background: var(--bar);
+  border-bottom: 1px solid var(--line);
+}
+.top .av { width: 38px; height: 38px; font-size: 13px; }
+.top h1 { margin: 0; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+.top p { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
+.top .count { color: var(--muted); font-weight: 500; margin-left: 4px; }
+.top > div:nth-child(2) { min-width: 0; }
+.credit { margin-left: auto; flex: none; text-align: right; font-size: 10.5px; line-height: 1.35; color: var(--muted); }
+
+.chat {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-block: 18px 24px;
+  padding-left: max(14px, env(safe-area-inset-left, 0px));
+  padding-right: max(14px, env(safe-area-inset-right, 0px));
+  scroll-behavior: smooth;
+  cursor: pointer;
+}
+
+.date {
+  align-self: center;
+  margin: 10px 0 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--chip);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.date.now { background: var(--new-bubble); color: var(--new-ink); }
+
+.row { display: flex; gap: 8px; align-items: flex-end; max-width: 100%; }
+.row.old { align-self: flex-start; }
+.row.new { align-self: flex-end; flex-direction: row-reverse; }
+.row.cont .av { visibility: hidden; }
+
+.av {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display: grid;
+  place-content: center;
+  background: var(--old-avatar);
+  color: var(--old-bubble);
+  font-family: var(--font-old);
+  font-weight: 800;
+  font-size: 12px;
+  align-self: flex-start;
+}
+
+.stack { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.who { font-size: 12px; color: var(--muted); margin-left: 2px; }
+.line { display: flex; align-items: flex-end; gap: 5px; }
+.row.new .line { flex-direction: row-reverse; }
+
+.bubble {
+  max-width: min(270px, 68vw);
+  padding: 9px 13px;
+  border-radius: 16px;
+  font-size: 15px;
+  line-height: 1.5;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.row.old .bubble {
+  background: var(--old-bubble);
+  color: var(--old-ink);
+  font-family: var(--font-old);
+  font-weight: 700;
+  border-top-left-radius: 4px;
+  background-image: radial-gradient(ellipse at 15% 10%, rgba(255,255,255,.45), transparent 60%);
+}
+.row.new .bubble {
+  background: var(--new-bubble);
+  color: var(--new-ink);
+  border-top-right-radius: 4px;
+}
+.bubble.shout { font-size: 18px; font-weight: 800; letter-spacing: .02em; }
+
+.meta { display: flex; flex-direction: column; align-items: flex-start; font-size: 10.5px; color: var(--muted); white-space: nowrap; line-height: 1.3; font-variant-numeric: tabular-nums; }
+.row.new .meta { align-items: flex-end; }
+.unread { color: var(--unread); font-weight: 700; font-size: 11px; transition: opacity .4s ease; }
+.read .unread { opacity: 0; }
+
+.sys {
+  align-self: center;
+  font-size: 12px;
+  color: var(--muted);
+  padding: 4px 0;
+  text-align: center;
+}
+.sys b { color: var(--unread); font-weight: 700; }
+.sys.done b { color: var(--new-bubble); }
+
+.final {
+  align-self: stretch;
+  margin-top: 14px;
+  padding: 22px 20px 20px;
+  border-radius: 20px;
+  background: var(--new-bubble);
+  color: var(--new-ink);
+}
+.final small { display: block; font-size: 12px; font-weight: 500; opacity: .75; margin-bottom: 8px; letter-spacing: .02em; }
+.final strong { display: block; font-size: clamp(24px, 7.2vw, 32px); font-weight: 900; line-height: 1.3; letter-spacing: -0.03em; text-wrap: balance; }
+.final .sig { display: block; margin-top: 14px; font-size: 12px; opacity: .75; text-align: right; }
+
+.typing { display: inline-flex; gap: 4px; padding: 13px 14px; }
+.typing i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: .4; animation: dot 1s infinite; }
+.typing i:nth-child(2) { animation-delay: .15s; }
+.typing i:nth-child(3) { animation-delay: .3s; }
+@keyframes dot { 30% { opacity: 1; transform: translateY(-3px); } }
+
+.pop { animation: pop .28s ease-out; }
+@keyframes pop { from { transform: translateY(8px) scale(.97); opacity: .3; } }
+
+.bottom {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-block: 10px;
+  padding-left: max(14px, env(safe-area-inset-left, 0px));
+  padding-right: max(14px, env(safe-area-inset-right, 0px));
+  background: var(--bar);
+  border-top: 1px solid var(--line);
+}
+.fake-input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: var(--bg-chat);
+  border: 1px solid var(--line);
+  font-size: 14px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.replay {
+  flex: none;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--new-ink);
+  background: var(--new-bubble);
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+.replay:focus-visible, .chat:focus-visible { outline: 2px solid var(--new-bubble); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pop, .typing i { animation: none; }
+  .chat { scroll-behavior: auto; }
+}
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <header class="top">
+    <div class="av" aria-hidden="true">光州</div>
+    <div>
+      <h1>1929 광주 학생들 <span class="count">54,000</span></h1>
+      <p id="status">97년 만에 읽음</p>
+    </div>
+    <div class="credit">만든이<br>목운중 안태현</div>
+  </header>
+
+  <main class="chat" id="chat" tabindex="0" aria-live="polite" aria-label="1929년 학생들과 2026년 후배의 대화"></main>
+
+  <footer class="bottom">
+    <div class="fake-input" id="hint">선배님들께 답장 완료</div>
+    <button class="replay" id="replay" type="button">다시 보기</button>
+  </footer>
+</div>
+
+<script>
+(function () {
+  // 1929년 쪽 메시지는 역사적 사실(나주역 사건, 11월 3일 광주 시위, 당시 구호)을 바탕으로 상상해서 쓴 것
+  const script = [
+    { k: 'date', t: '1929년 10월 30일 · 나주역' },
+    { k: 'old', t: '오늘 통학 기차에서 일본 학생들이 우리 여학생들을 희롱했다', time: '오후 5:30' },
+    { k: 'old', t: '보고만 있을 수 없어서 맞섰다', time: '오후 5:31' },
+    { k: 'date', t: '1929년 11월 3일 · 광주' },
+    { k: 'old', t: '오늘 우리는 거리로 나간다', time: '오전 11:00' },
+    { k: 'old', t: '식민지 노예교육 철폐!', time: '오전 11:02', shout: true },
+    { k: 'old', t: '조선 독립 만세!', time: '오전 11:02', shout: true },
+    { k: 'old', t: '먼 훗날의 학생들도 이 목소리를 들어줄까', time: '오후 11:58' },
+    { k: 'sys', t: '<b>97년 동안 읽지 않음</b>', id: 'gap' },
+    { k: 'date', t: '2026년 10월 28일 · 서울', now: true },
+    { k: 'new', t: '선배님, 다 들었어요', time: '오후 10:05' },
+    { k: 'new', t: '그 용기 덕분에 저희는 지금 자유롭게 배우고 목소리를 내요', time: '오후 10:05' },
+    { k: 'new', t: '차별은 아직 따돌림이랑 온라인 혐오로 모양만 바꿔서 남아 있어요', time: '오후 10:06' },
+    { k: 'new', t: '그래서 저희는 모른 척 안 할게요. 서로 존중하면서 함께 갈게요', time: '오후 10:06' },
+    { k: 'final' }
+  ];
+
+  const chat = document.getElementById('chat');
+  const replay = document.getElementById('replay');
+  const hint = document.getElementById('hint');
+  const statusEl = document.getElementById('status');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let run = 0;
+
+  function el(tag, cls, html) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (html != null) e.innerHTML = html;
+    return e;
+  }
+  const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  function build(item, prev, read) {
+    if (item.k === 'date') return el('div', 'date' + (item.now ? ' now' : ''), esc(item.t));
+    if (item.k === 'sys') {
+      const s = el('div', 'sys', item.t);
+      if (read) { s.classList.add('done'); s.innerHTML = '<b>97년 만에 읽음</b>'; }
+      return s;
+    }
+    if (item.k === 'final') {
+      return el('div', 'final',
+        '<small>2026년 10월 28일 · 답장</small>' +
+        '<strong>97년 전 그 목소리에,<br>이제 저희가 답합니다.</strong>' +
+        '<span class="sig">2026년의 후배가</span>');
+    }
+    const cont = prev && prev.k === item.k;
+    const row = el('div', 'row ' + item.k + (cont ? ' cont' : '') + (read ? ' read' : ''));
+    if (item.k === 'old') row.appendChild(el('div', 'av', '光州'));
+    const stack = el('div', 'stack');
+    if (item.k === 'old' && !cont) stack.appendChild(el('div', 'who', '광주 학생들'));
+    const line = el('div', 'line');
+    line.appendChild(el('div', 'bubble' + (item.shout ? ' shout' : ''), esc(item.t)));
+    const meta = el('div', 'meta');
+    if (item.k === 'old') meta.appendChild(el('span', 'unread', '1'));
+    meta.appendChild(el('span', '', item.time));
+    line.appendChild(meta);
+    stack.appendChild(line);
+    row.appendChild(stack);
+    return row;
+  }
+
+  function renderAll() {
+    run++;
+    chat.innerHTML = '';
+    script.forEach((it, i) => chat.appendChild(build(it, script[i - 1], true)));
+    statusEl.textContent = '97년 만에 읽음';
+    hint.textContent = '선배님들께 답장 완료';
+    replay.hidden = false;
+  }
+
+  const sleep = (ms, id) => new Promise((res, rej) => setTimeout(() => (id === run ? res() : rej()), ms));
+  const scrollDown = () => { chat.scrollTop = chat.scrollHeight; };
+
+  async function typingThen(side, id, ms) {
+    const row = el('div', 'row ' + side + ' pop');
+    if (side === 'old') row.appendChild(el('div', 'av', '光州'));
+    const b = el('div', 'bubble');
+    b.appendChild(el('span', 'typing', '<i></i><i></i><i></i>'));
+    row.appendChild(b);
+    if (side === 'new') b.style.background = 'var(--new-bubble)';
+    else { b.style.background = 'var(--old-bubble)'; b.style.color = 'var(--old-ink)'; }
+    chat.appendChild(row);
+    scrollDown();
+    await sleep(ms, id);
+    row.remove();
+  }
+
+  async function play() {
+    const id = ++run;
+    chat.innerHTML = '';
+    statusEl.textContent = '1929년에 마지막으로 접속';
+    hint.textContent = '화면을 누르면 건너뛰어요';
+    try {
+      await sleep(500, id);
+      for (let i = 0; i < script.length; i++) {
+        const it = script[i];
+        if (it.k === 'old' || it.k === 'new') await typingThen(it.k, id, it.k === 'old' ? 650 : 800);
+        if (it.k === 'sys') await sleep(500, id);
+        if (it.k === 'date' && it.now) {
+          // 97년 만에 읽음: 안 읽힌 1이 사라짐
+          await sleep(900, id);
+          chat.querySelectorAll('.row.old').forEach(r => r.classList.add('read'));
+          const gap = chat.querySelector('.sys');
+          if (gap) { gap.classList.add('done'); gap.innerHTML = '<b>97년 만에 읽음</b>'; }
+          statusEl.textContent = '97년 만에 읽음';
+          await sleep(900, id);
+        }
+        if (it.k === 'final') { await typingThen('new', id, 1100); }
+        const node = build(it, script[i - 1], false);
+        node.classList.add('pop');
+        chat.appendChild(node);
+        scrollDown();
+        await sleep(it.k === 'date' ? 500 : 450, id);
+      }
+      hint.textContent = '선배님들께 답장 완료';
+    } catch (e) { /* 건너뛰기나 다시 보기로 중단됨 */ }
+  }
+
+  function skip() {
+    if (hint.textContent !== '화면을 누르면 건너뛰어요') return;
+    renderAll();
+    scrollDown();
+  }
+
+  chat.addEventListener('click', skip);
+  chat.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); skip(); } });
+  replay.addEventListener('click', play);
+
+  renderAll();
+  if (!reduce) play();
+})();
+</script>
+</body>
+</html>
